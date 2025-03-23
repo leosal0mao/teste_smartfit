@@ -1,26 +1,61 @@
 import 'dart:convert';
 
-import 'package:teste_smartfit/core/network/dio_adapter.dart';
-
-import '../../../core/constants/api_constants.dart';
+import '../../../core/network/dio_adapter.dart';
+import '../../models/response_models/todo_list_response_model.dart';
 import '../../models/response_models/todo_response_model.dart';
+import '../../models/todo_model.dart';
 import '../todo_remote_datasource.dart';
 
 class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
-  final DioAdapter adapter;
+  final DioAdapter dioAdapter;
 
-  TodoRemoteDataSourceImpl({required this.adapter});
+  TodoRemoteDataSourceImpl({required this.dioAdapter});
 
   @override
-  Future<TodoResponseModel> getTodos(int limit) async {
-    final url = '${ApiConstants.baseUrl}/todos?limit=$limit';
-    final response = await adapter.get(url);
+  Future<TodoListResponseModel> getTodos(int limit) async {
+    try {
+      final response = await dioAdapter.get(
+        '/todos',
+        queryParameters: {'limit': limit},
+      );
+      return TodoListResponseModel.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to load todos: $e');
+    }
+  }
 
-    if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      return TodoResponseModel.fromJson(jsonData);
-    } else {
-      throw Exception('Failed to load todos');
+  @override
+  Future<void> deleteTodo(int todoId) async {
+    try {
+      await dioAdapter.delete('/todos/$todoId');
+    } catch (e) {
+      throw Exception('Failed to delete todo: $e');
+    }
+  }
+
+  @override
+  Future<TodoResponseModel> updateTodo(TodoModel todo, int todoId) async {
+    try {
+      final response = await dioAdapter.put(
+        '/todos/$todoId',
+        data: jsonEncode(todo) as Map<String, dynamic>,
+      );
+      return TodoResponseModel.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to update todo: $e');
+    }
+  }
+
+  @override
+  Future<TodoResponseModel> createTodo(TodoResponseModel todo) async {
+    try {
+      final response = await dioAdapter.post(
+        '/todos',
+        data: jsonEncode(todo) as Map<String, dynamic>,
+      );
+      return TodoResponseModel.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to create todo: $e');
     }
   }
 }

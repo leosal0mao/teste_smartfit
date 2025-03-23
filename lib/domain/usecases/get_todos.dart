@@ -2,10 +2,10 @@ import 'package:teste_smartfit/domain/repositories/todo_repository.dart';
 
 import '../entities/todo.dart';
 
-class GetTodos {
+class GetTodosUsecase {
   final TodoRepository repository;
 
-  GetTodos(this.repository);
+  GetTodosUsecase(this.repository);
 
   Future<List<Todo>> call(int limit) async {
     return await repository.getTodos(limit);

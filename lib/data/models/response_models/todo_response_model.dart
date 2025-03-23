@@ -1,26 +1,20 @@
+import '../../../domain/entities/todo.dart';
 import '../todo_model.dart';
 
 class TodoResponseModel {
-  final List<TodoModel> todos;
-  final int total;
-  final int skip;
-  final int limit;
+  final TodoModel todo;
 
   TodoResponseModel({
-    required this.todos,
-    required this.total,
-    required this.skip,
-    required this.limit,
+    required this.todo,
   });
 
   factory TodoResponseModel.fromJson(Map<String, dynamic> json) {
     return TodoResponseModel(
-      todos: (json['todos'] as List)
-          .map((todo) => TodoModel.fromJson(todo))
-          .toList(),
-      total: json['total'],
-      skip: json['skip'],
-      limit: json['limit'],
+      todo: TodoModel.fromJson(json),
     );
+  }
+
+  Todo toEntity() {
+    return todo.toEntity();
   }
 }

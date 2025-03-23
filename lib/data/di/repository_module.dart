@@ -6,7 +6,7 @@ import '../../dependency_injection.dart';
 mixin RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
     getIt.registerLazySingleton<TodoRepository>(
-      () => TodoRepositoryImpl(getIt.get()),
+      () => TodoRepositoryImpl(remoteDataSource: getIt.get()),
     );
   }
 }
