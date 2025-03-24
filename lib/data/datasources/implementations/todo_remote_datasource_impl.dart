@@ -38,7 +38,7 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
     try {
       final response = await dioAdapter.put(
         '/todos/$todoId',
-        data: jsonEncode(todo) as Map<String, dynamic>,
+        data: todo.toJson(),
       );
       return TodoResponseModel.fromJson(response);
     } catch (e) {
@@ -50,8 +50,8 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   Future<TodoResponseModel> createTodo(TodoResponseModel todo) async {
     try {
       final response = await dioAdapter.post(
-        '/todos',
-        data: jsonEncode(todo) as Map<String, dynamic>,
+        '/todos/add',
+        data: todo.todo.toJson(),
       );
       return TodoResponseModel.fromJson(response);
     } catch (e) {

@@ -22,7 +22,15 @@ class TodoModel {
     );
   }
 
-  // Converte TodoModel para Todo (entidade)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'todo': todo,
+      'completed': completed,
+      'userId': userId,
+    };
+  }
+
   Todo toEntity() {
     return Todo(
       id: id,
@@ -32,7 +40,6 @@ class TodoModel {
     );
   }
 
-  // Converte Todo (entidade) para TodoModel
   factory TodoModel.fromEntity(Todo todo) {
     return TodoModel(
       id: todo.id,
