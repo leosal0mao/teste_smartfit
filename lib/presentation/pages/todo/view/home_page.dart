@@ -7,90 +7,6 @@ import '../../../theme/app_colors.dart';
 import '../bloc/todo_bloc.dart';
 import '../widgets/todo_item_widget.dart';
 
-// class HomePage extends StatefulWidget {
-//   const HomePage({super.key});
-
-//   @override
-//   State<HomePage> createState() => _HomePageState();
-// }
-
-// class _HomePageState extends State<HomePage> {
-//   late TodoBloc _todoBloc;
-//   @override
-//   void initState() {
-//     super.initState();
-//     _todoBloc = context.read<TodoBloc>();
-//     _todoBloc.add(const FetchTodos(limit: 5));
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<TodoBloc, TodoState>(
-//       builder: (context, state) {
-//         return Scaffold(
-//           appBar: AppBar(title: const Text('Todos')),
-//           body: BlocBuilder<TodoBloc, TodoState>(
-//             builder: (context, state) {
-//               if (state is TodoLoading) {
-//                 return const Center(child: CircularProgressIndicator());
-//               } else if (state is TodosLoaded) {
-//                 return ListView.builder(
-//                   itemCount: state.todos.length,
-//                   itemBuilder: (context, index) {
-//                     final todo = state.todos[index];
-//                     return ListTile(
-//                       title: Text(todo.todo),
-//                       subtitle: Text('Completed: ${todo.completed}'),
-//                     );
-//                   },
-//                 );
-//               } else if (state is TodoError) {
-//                 return Center(child: Text(state.message));
-//               }
-//               return const Center(child: Text('No todos found'));
-//             },
-//           ),
-//           floatingActionButton: FloatingActionButton(
-//             onPressed: () {
-//               // context.read<TodoBloc>().add(
-//               //       CreateTodo(
-//               //         todo: TodoResponseModel(
-//               //           todo: TodoModel(
-//               //             id: 1,
-//               //             todo: 'New Todo',
-//               //             completed: false,
-//               //             userId: 1,
-//               //           ),
-//               //         ),
-//               //       ),
-//               //     );
-
-//               // context.read<TodoBloc>().add(
-//               //       UpdateTodo(
-//               //         todoId: 1,
-//               //         todo: TodoModel(
-//               //           id: 1,
-//               //           todo: 'update todo',
-//               //           completed: false,
-//               //           userId: 152,
-//               //         ),
-//               //       ),
-//               //     );
-
-//               // context.read<TodoBloc>().add(
-//               //       DeleteTodo(
-//               //         todoId: 1,
-//               //       ),
-//               //     );
-//             },
-//             child: const Icon(Icons.add),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -100,19 +16,29 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _textController = TextEditingController();
-  late TodoBloc _todoBloc;
-  List<TodoModel> _todoList = [];
 
   @override
   void initState() {
     super.initState();
-    _todoBloc = context.read<TodoBloc>();
-    _todoBloc.add(const FetchTodos(limit: 7));
+    context.read<TodoBloc>().add(const FetchTodos(limit: 7));
   }
 
   void _addTodoItem() {
-    final String text = _textController.text.trim();
+    final text = _textController.text.trim();
     if (text.isNotEmpty) {
+      final currentState = context.read<TodoBloc>().state;
+      final todos = currentState is TodosLoaded ? currentState.todos : [];
+
+      context.read<TodoBloc>().add(
+            CreateTodo(
+              todo: TodoModel(
+                id: todos.length + 1,
+                todo: text,
+                completed: false,
+                userId: 1,
+              ),
+            ),
+          );
       _textController.clear();
       FocusScope.of(context).unfocus();
     }
@@ -120,35 +46,47 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: AppColors.themeColor,
-        appBar: AppBar(
-          title: const Text('To Do List'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'TO DO'),
-              Tab(text: 'COMPLETED'),
+    return BlocListener<TodoBloc, TodoState>(
+      listener: (context, state) {
+        if (state is TodoError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          backgroundColor: AppColors.themeColor,
+          appBar: AppBar(
+            title: const Text('To Do List'),
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'TO DO'),
+                Tab(text: 'COMPLETED'),
+              ],
+            ),
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _buildTodoList(completed: false),
+                    _buildTodoList(completed: true),
+                  ],
+                ),
+              ),
+              CustomTextField(
+                textController: _textController,
+                onPressed: _addTodoItem,
+                onSubmitted: (_) => _addTodoItem(),
+              ),
             ],
           ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: TabBarView(
-                children: [
-                  _buildTodoList(completed: false),
-                  _buildTodoList(completed: true),
-                ],
-              ),
-            ),
-            CustomTextField(
-              textController: _textController,
-              onPressed: _addTodoItem,
-              onSubmitted: (value) => _addTodoItem(),
-            ),
-          ],
         ),
       ),
     );
@@ -157,44 +95,56 @@ class _HomePageState extends State<HomePage> {
   Widget _buildTodoList({required bool completed}) {
     return BlocBuilder<TodoBloc, TodoState>(
       builder: (context, state) {
-        if (state is TodoLoading) {
+        final todos = state is TodosLoaded ? state.todos : [];
+        final filteredTodos =
+            todos.where((t) => t.completed == completed).toList();
+
+        if (state is TodoLoading && todos.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         } else if (state is TodoError) {
           return Center(child: Text(state.message));
-        } else if (state is TodosLoaded) {
-          _todoList =
-              state.todos.where((todo) => todo.completed == completed).toList();
-          if (_todoList.isEmpty) {
-            return Center(
-              child: Text(
-                completed ? 'No completed todos found' : 'No todos found',
-                style: const TextStyle(color: AppColors.white),
-              ),
-            );
-          }
-          return ListView(
-            padding: const EdgeInsets.all(16.0),
-            children: _todoList
-                .map((todo) => TodoItem(
-                      id: todo.id.toString(),
-                      title: todo.todo,
-                      onTap: () => Navigator.of(context).pushNamed(
-                        '/todo',
-                        arguments: todo,
-                      ),
-                      onDismissed: (direction) {
-                        context
-                            .read<TodoBloc>()
-                            .add(DeleteTodo(todoId: todo.id));
-                      },
-                    ))
-                .toList(),
+        } else if (filteredTodos.isEmpty) {
+          return Center(
+            child: Text(
+              completed ? 'No completed todos' : 'No todos yet',
+              style: const TextStyle(color: AppColors.white),
+            ),
           );
         }
-        return const Center(
-          child: Text(
-            'No todos found',
-            style: TextStyle(color: AppColors.white),
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: filteredTodos.length,
+          itemBuilder: (ctx, index) => TodoItem(
+            isCompleted: filteredTodos[index].completed,
+            id: filteredTodos[index].id.toString(),
+            title: filteredTodos[index].todo,
+            onTap: () => Navigator.pushNamed(
+              ctx,
+              '/todo',
+              arguments: filteredTodos[index],
+            ),
+            onDismissed: (direction) {
+              context.read<TodoBloc>().add(
+                    DeleteTodo(todo: filteredTodos[index]),
+                  );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('TODO #${filteredTodos[index].id} deleted.'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            onCompletedChanged: (value) {
+              if (value != null) {
+                context.read<TodoBloc>().add(
+                      UpdateTodo(
+                        todo: filteredTodos[index].copyWith(completed: value),
+                        todoId: filteredTodos[index].id,
+                      ),
+                    );
+              }
+            },
           ),
         );
       },

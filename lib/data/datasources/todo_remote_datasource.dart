@@ -6,5 +6,5 @@ abstract class TodoRemoteDataSource {
   Future<TodoListResponseModel> getTodos(int limit);
   Future<void> deleteTodo(int todoId);
   Future<TodoResponseModel> updateTodo(TodoModel todo, int todoId);
-  Future<TodoResponseModel> createTodo(TodoResponseModel todo);
+  Future<TodoResponseModel> createTodo(TodoModel todo);
 }

@@ -34,10 +34,9 @@ class TodoRepositoryImpl implements TodoRepository {
   Future<Todo> createTodo(Todo todo) async {
     final todoModel = TodoModel.fromEntity(todo);
 
-    final todoResponseModel = TodoResponseModel(todo: todoModel);
+    // final todoResponseModel = TodoResponseModel(todo: todoModel);
 
-    final createdTodoResponse =
-        await remoteDataSource.createTodo(todoResponseModel);
+    final createdTodoResponse = await remoteDataSource.createTodo(todoModel);
 
     return createdTodoResponse.todo.toEntity();
   }

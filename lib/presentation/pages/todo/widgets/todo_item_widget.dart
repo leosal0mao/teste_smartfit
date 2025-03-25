@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_colors.dart';
 
 class TodoItem extends StatelessWidget {
@@ -8,6 +7,7 @@ class TodoItem extends StatelessWidget {
   final String id;
   final Function(DismissDirection) onDismissed;
   final Function() onTap;
+  final Function(bool?) onCompletedChanged;
 
   const TodoItem({
     super.key,
@@ -15,6 +15,7 @@ class TodoItem extends StatelessWidget {
     required this.id,
     required this.onDismissed,
     required this.onTap,
+    required this.onCompletedChanged,
     this.isCompleted = false,
   });
 
@@ -46,11 +47,26 @@ class TodoItem extends StatelessWidget {
           ),
           title: Text(
             title,
-            style: const TextStyle(color: AppColors.white),
+            style: const TextStyle(
+              color: AppColors.white,
+            ),
           ),
-          trailing: isCompleted
-              ? const Icon(Icons.check_circle, color: AppColors.green)
-              : const Icon(Icons.check_circle, color: AppColors.white),
+          trailing: Checkbox(
+              tristate: true,
+              value: isCompleted,
+              onChanged: onCompletedChanged,
+              checkColor: Colors.green,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4.0),
+              ),
+              side: const BorderSide(color: AppColors.white),
+              fillColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                if (states.contains(WidgetState.disabled)) {
+                  return AppColors.white;
+                }
+                return AppColors.white;
+              })),
         ),
       ),
     );

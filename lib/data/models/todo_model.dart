@@ -22,6 +22,20 @@ class TodoModel {
     );
   }
 
+  TodoModel copyWith({
+    int? id,
+    String? todo,
+    bool? completed,
+    int? userId,
+  }) {
+    return TodoModel(
+      id: id ?? this.id,
+      todo: todo ?? this.todo,
+      completed: completed ?? this.completed,
+      userId: userId ?? this.userId,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

@@ -47,11 +47,11 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   }
 
   @override
-  Future<TodoResponseModel> createTodo(TodoResponseModel todo) async {
+  Future<TodoResponseModel> createTodo(TodoModel todo) async {
     try {
       final response = await dioAdapter.post(
         '/todos/add',
-        data: todo.todo.toJson(),
+        data: todo.toJson(),
       );
       return TodoResponseModel.fromJson(response);
     } catch (e) {

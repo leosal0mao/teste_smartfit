@@ -29,12 +29,12 @@ class TodoOperationSuccess extends TodoState {
   List<Object> get props => [todo];
 }
 
-class TodoDeleted extends TodoState {}
-
 class TodoError extends TodoState {
   final String message;
 
-  const TodoError({required this.message});
+  const TodoError({
+    required this.message,
+  });
 
   @override
   List<Object> get props => [message];

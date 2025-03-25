@@ -17,12 +17,12 @@ class FetchTodos extends TodoEvent {
 }
 
 class DeleteTodo extends TodoEvent {
-  final int todoId;
+  final TodoModel todo;
 
-  const DeleteTodo({required this.todoId});
+  const DeleteTodo({required this.todo});
 
   @override
-  List<Object> get props => [todoId];
+  List<Object> get props => [todo];
 }
 
 class UpdateTodo extends TodoEvent {
@@ -36,7 +36,7 @@ class UpdateTodo extends TodoEvent {
 }
 
 class CreateTodo extends TodoEvent {
-  final TodoResponseModel todo;
+  final TodoModel todo;
 
   const CreateTodo({required this.todo});
 
