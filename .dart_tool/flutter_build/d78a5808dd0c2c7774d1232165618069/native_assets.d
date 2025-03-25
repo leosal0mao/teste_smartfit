@@ -1,0 +1,1 @@
+ /Users/leo/Desktop/dev-projects/teste_smartfit/.dart_tool/flutter_build/d78a5808dd0c2c7774d1232165618069/native_assets.yaml: 
