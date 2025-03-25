@@ -1,7 +1,6 @@
 import '../../domain/entities/todo.dart';
 import '../../domain/repositories/todo_repository.dart';
 import '../datasources/todo_remote_datasource.dart';
-import '../models/response_models/todo_response_model.dart';
 import '../models/todo_model.dart';
 
 class TodoRepositoryImpl implements TodoRepository {
